@@ -1,7 +1,11 @@
-# bitbucket
-a cli interface to the BitBucket REST API (v1.0)
+# abs
+auto backup system
 
-## Feature(s)
+## abs
+- push
+-- push all git repos
+
+## abs-bitbucket
 - create
 -- create a repository
 - delete
