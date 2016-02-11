@@ -47,7 +47,7 @@
                 for remote in `git remote`; do
 
                     # display
-                    [ $verbose ] && echo "[$git][$branch]"
+                    [ $verbose ] && echo "[$git][$remote][$branch]"
 
                     # push
                     git push "$remote" "$branch"
