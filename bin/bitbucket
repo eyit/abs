@@ -130,13 +130,23 @@
 
             )
 
+            # clean
+            clean=$(
+
+                echo $curl              \
+                | python -m json.tool   \
+                | grep '"name":'        \
+                | awk '{print $2}'      \
+                | sed 's/\"//g'         \
+                | tr -d ,
+
+            )
+
             # display
-            echo $curl              \
-            | python -m json.tool   \
-            | grep '"name":'        \
-            | awk '{print $2}'      \
-            | sed 's/\"//g'         \
-            | tr -d ,
+            for repo in `echo $clean`
+            do
+                echo "$repo - git@bitbucket.org:$username/$repo.git"
+            done
 
             # return
             return 0
