@@ -1,5 +1,5 @@
 # bitbucket
-'a cli interface to the BitBucket REST API (v1.0)'
+a cli interface to the BitBucket REST API (v1.0)
 
 ## Feature(s)
 - create
