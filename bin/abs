@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+#   abs
+#
+
+
+
+
+    # | feature(s)
+
+        function push {
+
+            # args
+            while getopts ":b:d:sv" FLAG; do
+                case "$FLAG" in
+                    b)  branch="$OPTARG"
+                        ;;
+                    d)  directory="$OPTARG"
+                        ;;
+                    s)  space=1
+                        ;;
+                    v)  verbose=1
+                        ;;
+                esac
+            done
+
+            # check
+            [ ! -d "$branch"    ] && branch='master'
+            [ ! -d "$directory" ] && directory='.'
+
+            # relative -> absolute
+            directory=$( realpath "$directory" )
+
+            # find git(s)
+            for git in `find "$directory" -wholename *'.git'`; do
+
+                # spacer
+                [ $space ] && echo ""
+
+                # display
+                [ $verbose ] && echo "[$git]"
+
+                # directory
+                cd "$git"
+
+                # find remote(s)
+                for remote in `git remote`; do
+
+                    # display
+                    [ $verbose ] && echo "[$git][$branch]"
+
+                    # push
+                    git push "$remote" "$branch"
+
+                done
+
+            done
+
+            # return
+            return 0
+
+        }
+
+    # feature(s) |
+
+
+    # | function(s)
+
+        function usage {
+            echo "$0 usage: $0 [push]"
+        }
+
+    # function(s) |
+
+
+    # | main
+
+        # check - arg(s)
+        [ $# -lt 1 ] && usage && exit 2
+
+        # case - arg - 1
+        case "$1" in
+            push)       shift
+                        push $@
+                        ;;
+            *)          usage
+                        ;;
+        esac
+
+    # main |
+
+
+
+
+#
+#   <(0.o)>--
+#
