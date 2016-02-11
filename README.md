@@ -1,8 +1,12 @@
 # bitbucket
-'a simple cli interface to the REST api'
+'a cli interface to the BitBucket REST API (v1.0)'
 
 ## Feature(s)
+- create
+    "create a repository"
+- delete
+    "delete a repository"
 - init
     "initalize with user/password"
-- create
-    "curl to create repository with REST api"
+- list
+    "list repositories"
