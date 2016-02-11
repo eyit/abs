@@ -177,7 +177,7 @@
     # function(s) |
 
 
-    # | logic
+    # | main
 
         # check - arg(s)
         [ $# -lt 1 ] && usage && exit 2
@@ -200,7 +200,7 @@
                         ;;
         esac
 
-    # logic |
+    # main |
 
 
 
