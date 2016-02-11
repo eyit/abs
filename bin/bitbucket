@@ -149,11 +149,15 @@
     # | function(s)
 
         function usage {
-            echo "$0 usage: $0 [create|init|list]"
+            echo "$0 usage: $0 [create|delete|init|list]"
         }
 
         function usage_create {
-            echo "$0 usage: $0 create repository"
+            echo "$0 usage: $0 create {repository name}"
+        }
+
+        function usage_delete {
+            echo "$0 usage: $0 delete {repository name}"
         }
 
         function usage_init {
