@@ -38,6 +38,45 @@
 
             )
 
+            # ? error
+            if [[ "$curl" == *"error"* ]]; then
+                echo "$curl"
+            fi
+
+            # return
+            return 0
+
+        }
+
+        function delete {
+
+            # check(s)
+            [ ! -e "$dir_config/auth/password" ] && usage_init   && exit 2
+            [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
+            [   -z "$1"                        ] && usage_delete && exit 2
+
+            # var - details - config
+            password=$( cat "$dir_config/auth/password" )
+            username=$( cat "$dir_config/auth/username" )
+
+            # var - details - repository - name
+            name="$1"
+
+            # delete
+            curl=$(
+
+                curl    -ksS                                        \
+                        -X DELETE                                   \
+                        --user "$username:$password"                \
+                        "$url_api/repositories/$username/$name"
+
+            )
+
+            # ? error
+            if [[ "$curl" == *"error"* ]]; then
+                echo "$curl"
+            fi
+
             # return
             return 0
 
@@ -133,6 +172,9 @@
         case "$1" in
             create)     shift
                         create $@
+                        ;;
+            delete)     shift
+                        delete $@
                         ;;
             init)       shift
                         init $@
