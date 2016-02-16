@@ -6,51 +6,67 @@
 
 
 
+    # global(s)
+    script_name=$(basename $0)
+    script_verbose=
+
+
     # | feature(s)
 
-        function push {
+        function abs {
+        #
+        #   $1  =   'action'
+        #   $2  =   'repository'    (optional)
+        #   $3  =   'branch'        (optional)
+        #
 
-            # args
-            while getopts ":b:d:sv" FLAG; do
-                case "$FLAG" in
-                    b)  branch="$OPTARG"
-                        ;;
-                    d)  directory="$OPTARG"
-                        ;;
-                    s)  space=1
-                        ;;
-                    v)  verbose=1
-                        ;;
-                esac
-            done
+            # var
+            action="$1"
+            repository="$2"
+            branch="$3"
 
-            # check
-            [ ! -d "$branch"    ] && branch='master'
-            [ ! -d "$directory" ] && directory='.'
+            # log - init
+            log "Initiating '$action'"
+
+            # check - optional
+            [ -z "$branch"      ] && branch='master'
+            [ -z "$directory"   ] && directory='.'
+
+            # check - dir
+            [ ! -d "$directory" ] && error "Bad directory '$directory'" && exit 2
 
             # relative -> absolute
             directory=$( realpath "$directory" )
 
+            # log - directory
+            log "Found directory '$directory'"
+
+            # log - directory - search
+            log "Searching directory..."
+            log "Found '`find "$directory" -name *'.git' | wc -l`' GIT repositories"
+
             # find git(s)
-            for git in `find "$directory" -wholename *'.git'`; do
-
-                # spacer
-                [ $space ] && echo ""
-
-                # display
-                [ $verbose ] && echo "[$git]"
+            for git in `find "$directory" -name '.git'`; do
 
                 # directory
-                cd "$git"
+                cd "$git/.."
 
                 # find remote(s)
                 for remote in `git remote`; do
 
-                    # display
-                    [ $verbose ] && echo "[$git][$remote][$branch]"
-
                     # push
-                    git push "$remote" "$branch"
+                    if [ $script_verbose ]; then
+                        git "${action,,}" "$remote" "$branch"
+                    else
+                        git "${action,,}" "$remote" "$branch" &> /dev/null
+                    fi
+
+                    # log - result
+                    if [ $? -eq 0 ]; then
+                        log   "$action '$git' '$remote:$branch'"
+                    else
+                        error "ERROR '$git' '$remote:$branch'"
+                    fi
 
                 done
 
@@ -61,10 +77,62 @@
 
         }
 
+        function pull {
+
+            # args
+            while getopts ":b:d:v" FLAG; do
+                case "$FLAG" in
+                    b)  branch="$OPTARG"
+                        ;;
+                    d)  directory="$OPTARG"
+                        ;;
+                    v)  script_verbose=1
+                        ;;
+                esac
+            done
+
+            # abs
+            abs "PULL" "$directory" "$branch"
+
+            # return
+            return 0
+
+        }
+
+        function push {
+
+            # args
+            while getopts ":b:d:v" FLAG; do
+                case "$FLAG" in
+                    b)  branch="$OPTARG"
+                        ;;
+                    d)  directory="$OPTARG"
+                        ;;
+                    v)  script_verbose=1
+                        ;;
+                esac
+            done
+
+            # abs
+            abs "PUSH" "$directory" "$branch"
+
+            # return
+            return 0
+
+        }
+
     # feature(s) |
 
 
     # | function(s)
+
+        function error {
+            logger -s -p user.error -t "$script_name" "$@"
+        }
+
+        function log {
+            logger -s -p user.notice -t "$script_name" "$@"
+        }
 
         function usage {
             echo "$0 usage: $0 [push]"
@@ -80,8 +148,11 @@
 
         # case - arg - 1
         case "$1" in
+            pull)       shift
+                        pull "$@"
+                        ;;
             push)       shift
-                        push $@
+                        push "$@"
                         ;;
             *)          usage
                         ;;
