@@ -135,7 +135,7 @@
         }
 
         function usage {
-            echo "$0 usage: $0 [push]"
+            echo "$0 usage: $0 [pull|push]"
         }
 
     # function(s) |
