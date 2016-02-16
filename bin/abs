@@ -43,13 +43,13 @@
 
             # log - directory - search
             log "Searching directory..."
-            log "Found '`find "$directory" -name *'.git' | wc -l`' GIT repositories"
+            log "Found '`find "$directory" -name "*.git" | wc -l`' GIT repositories"
 
             # find git(s)
-            for git in `find "$directory" -name '.git'`; do
+            for git in `find "$directory" -name "*.git"`; do
 
                 # directory
-                cd "$git/.."
+                cd "$git"
 
                 # find remote(s)
                 for remote in `git remote`; do
