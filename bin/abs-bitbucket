@@ -41,7 +41,11 @@
             # ? error
             if [[ "$curl" == *"error"* ]]; then
                 echo "$curl"
+                exit 2
             fi
+
+            # display - remote
+            echo "git@bitbucket.org:$username/$name.git"
 
             # return
             return 0
