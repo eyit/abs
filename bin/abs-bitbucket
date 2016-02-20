@@ -130,6 +130,9 @@
 
             )
 
+            # response
+            [ -z "$curl" ] && echo "error: bad response"
+
             # clean
             clean=$(
 
