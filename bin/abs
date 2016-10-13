@@ -51,6 +51,11 @@
                 # directory
                 cd "$git"
 
+                # check - bare
+                if [[ "`git rev-parse --is-bare-repository`" == "false" ]]; then
+                    cd ".."
+                fi
+
                 # find remote(s)
                 for remote in `git remote`; do
 
