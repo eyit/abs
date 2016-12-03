@@ -1,0 +1,228 @@
+#!/bin/bash
+#
+#   bitbucket
+#
+
+
+
+
+    # global
+    dir_config="$HOME/.config/abs/bitbucket"
+    url_api="https://api.bitbucket.org/2.0"
+
+
+    # | feature(s)
+
+        function create {
+
+            # check(s)
+            [ ! -e "$dir_config/auth/password" ] && usage_init   && exit 2
+            [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
+            [   -z "$1"                        ] && usage_create && exit 2
+
+            # var - details - config
+            password=$( cat "$dir_config/auth/password" )
+            username=$( cat "$dir_config/auth/username" )
+
+            # var - details - repository - name
+            name="$1"
+
+            # create
+            curl=$(
+
+                curl    -ksS                            \
+                        -X POST                         \
+                        --user "$username:$password"    \
+                        "$url_api/repositories"         \
+                        -d "name=$name"
+
+            )
+
+            # ? error
+            if [[ "$curl" == *"error"* ]]; then
+                echo "$curl"
+                exit 2
+            fi
+
+            # display - remote
+            echo "git@bitbucket.org:$username/$name.git"
+
+            # return
+            return 0
+
+        }
+
+        function delete {
+
+            # check(s)
+            [ ! -e "$dir_config/auth/password" ] && usage_init   && exit 2
+            [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
+            [   -z "$1"                        ] && usage_delete && exit 2
+
+            # var - details - config
+            password=$( cat "$dir_config/auth/password" )
+            username=$( cat "$dir_config/auth/username" )
+
+            # var - details - repository - name
+            name="$1"
+
+            # delete
+            curl=$(
+
+                curl    -ksS                                        \
+                        -X DELETE                                   \
+                        --user "$username:$password"                \
+                        "$url_api/repositories/$username/$name"
+
+            )
+
+            # ? error
+            if [[ "$curl" == *"error"* ]]; then
+                echo "$curl"
+            fi
+
+            # return
+            return 0
+
+        }
+
+        function init {
+
+            # args
+            while getopts ":p:u:" FLAG; do
+                case "$FLAG" in
+                    p)  password="$OPTARG"
+                        ;;
+                    u)  username="$OPTARG"
+                        ;;
+                esac
+            done
+
+            # check(s)
+            [ -z "$password" ] && usage_init && exit 2
+            [ -z "$username" ] && usage_init && exit 2
+
+            # mkdir
+            mkdir -p "$dir_config/auth"
+
+            # set
+            echo "$password" > "$dir_config/auth/password"
+            echo "$username" > "$dir_config/auth/username"
+
+            # return
+            return 0
+
+        }
+
+        function list {
+
+            # arg - page
+            if [[ "$1" == "--page" ]]; then 
+                page="$2"
+            else
+                page=1
+            fi
+
+            # check(s)
+            [ ! -e "$dir_config/auth/password" ] && usage_init && exit 2
+            [ ! -e "$dir_config/auth/username" ] && usage_init && exit 2
+
+            # var - details - config
+            password=$( cat "$dir_config/auth/password" )
+            username=$( cat "$dir_config/auth/username" )
+
+            # list
+            curl=$(
+
+                curl    -ksS                                                    \
+                        -X GET                                                  \
+                        --user "$username:$password"                            \
+                        "$url_api/repositories/_tim_tim?page=$page&pagelen=100"
+
+            )
+
+            # response
+            [ -z "$curl" ] && echo "error: bad response" && exit 2
+
+            # clean
+            clean=$(
+
+                echo $curl              \
+                | python -m json.tool   \
+                | grep '"full_name": "' \
+                | awk '{print $2}'      \
+                | sed 's/\"//g'         \
+                | tr -d ,               \
+                | sort
+
+            )
+
+            # display
+            for repo in `echo $clean`
+            do
+                echo "git@bitbucket.org:$repo.git"
+            done
+
+            # return
+            return 0
+
+        }
+
+    # feature(s) |
+
+
+    # | function(s)
+
+        function usage {
+            echo "$0 usage: $0 [create|delete|init|remove|list]"
+        }
+
+        function usage_create {
+            echo "$0 usage: $0 create {repository name}"
+        }
+
+        function usage_delete {
+            echo "$0 usage: $0 delete {repository name}"
+        }
+
+        function usage_init {
+            echo "$0 usage: $0 init -u username -p password"
+        }
+
+    # function(s) |
+
+
+    # | main
+
+        # check - arg(s)
+        [ $# -lt 1 ] && usage && exit 2
+
+        # case - arg - 1
+        case "$1" in
+            create)     shift
+                        create $@
+                        ;;
+            delete)     shift
+                        delete $@
+                        ;;
+            init)       shift
+                        init $@
+                        ;;
+            list)       shift
+                        list $@
+                        ;;
+            remove)     shift
+                        delete $@
+                        ;;
+            *)          usage
+                        ;;
+        esac
+
+    # main |
+
+
+
+
+#
+#   <(%.0)>
+#
