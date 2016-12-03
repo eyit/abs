@@ -7,8 +7,8 @@
 
 
     # global
-    dir_config="$HOME/.config/bitbucket"
-    url_api="https://api.bitbucket.org/1.0"
+    dir_config="$HOME/.config/abs/bitbucket"
+    url_api="https://api.bitbucket.org/2.0"
 
 
     # | feature(s)
@@ -116,6 +116,13 @@
 
         function list {
 
+            # arg - page
+            if [[ "$1" == "--page" ]]; then 
+                page="$2"
+            else
+                page=1
+            fi
+
             # check(s)
             [ ! -e "$dir_config/auth/password" ] && usage_init && exit 2
             [ ! -e "$dir_config/auth/username" ] && usage_init && exit 2
@@ -127,32 +134,33 @@
             # list
             curl=$(
 
-                curl    -ksS                                \
-                        -X GET                              \
-                        --user "$username:$password"        \
-                        "$url_api/user/repositories"
+                curl    -ksS                                                    \
+                        -X GET                                                  \
+                        --user "$username:$password"                            \
+                        "$url_api/repositories/_tim_tim?page=$page&pagelen=100"
 
             )
 
             # response
-            [ -z "$curl" ] && echo "error: bad response"
+            [ -z "$curl" ] && echo "error: bad response" && exit 2
 
             # clean
             clean=$(
 
                 echo $curl              \
                 | python -m json.tool   \
-                | grep '"name":'        \
+                | grep '"full_name": "' \
                 | awk '{print $2}'      \
                 | sed 's/\"//g'         \
-                | tr -d ,
+                | tr -d ,               \
+                | sort
 
             )
 
             # display
             for repo in `echo $clean`
             do
-                echo "$repo - git@bitbucket.org:$username/$repo.git"
+                echo "git@bitbucket.org:$repo.git"
             done
 
             # return
