@@ -7,23 +7,31 @@
 
 
     # global(s)
-    script_name=$(basename $0)
-    script_verbose=
+    script=$( basename $0 )
+    verbose=1
 
 
-    # | feature(s)
+
+
+    # | abs
 
         function abs {
-        #
-        #   $1  =   'action'
-        #   $2  =   'repository'    (optional)
-        #   $3  =   'branch'        (optional)
-        #
 
-            # var
+            # action
             action="$1"
-            repository="$2"
-            branch="$3"
+            shift
+
+            # argument(s)
+            while getopts ":b:d:v" FLAG; do
+                case "$FLAG" in
+                    b)  branch="$OPTARG"
+                        ;;
+                    d)  directory="$OPTARG"
+                        ;;
+                    v)  verbose=0
+                        ;;
+                esac
+            done
 
             # log - init
             log "Initiating '$action'"
@@ -45,7 +53,7 @@
             log "Searching directory..."
             log "Found '`find "$directory" -name "*.git" | wc -l`' GIT repositories"
 
-            # find git(s)
+            # find - git(s)
             for git in `find "$directory" -name "*.git"`; do
 
                 # directory
@@ -59,16 +67,12 @@
                 # find remote(s)
                 for remote in `git remote`; do
 
-                    # push
-                    if [ $script_verbose ]; then
-                        git "${action,,}" "$remote" "$branch"
-                    else
-                        git "${action,,}" "$remote" "$branch" &> /dev/null
-                    fi
+                    # git - action - remote - branch
+                    git "$action" "$remote" "$branch" &> /dev/null
 
-                    # log - result
+                    # ? - result -> log
                     if [ $? -eq 0 ]; then
-                        log   "$action '$git' '$remote:$branch'"
+                        log   "${action^^}"" '$git' '$remote:$branch'"
                     else
                         error "ERROR '$git' '$remote:$branch'"
                     fi
@@ -82,68 +86,32 @@
 
         }
 
-        function pull {
-
-            # args
-            while getopts ":b:d:v" FLAG; do
-                case "$FLAG" in
-                    b)  branch="$OPTARG"
-                        ;;
-                    d)  directory="$OPTARG"
-                        ;;
-                    v)  script_verbose=1
-                        ;;
-                esac
-            done
-
-            # abs
-            abs "PULL" "$directory" "$branch"
-
-            # return
-            return 0
-
-        }
-
-        function push {
-
-            # args
-            while getopts ":b:d:v" FLAG; do
-                case "$FLAG" in
-                    b)  branch="$OPTARG"
-                        ;;
-                    d)  directory="$OPTARG"
-                        ;;
-                    v)  script_verbose=1
-                        ;;
-                esac
-            done
-
-            # abs
-            abs "PUSH" "$directory" "$branch"
-
-            # return
-            return 0
-
-        }
-
-    # feature(s) |
+    # abs |
 
 
-    # | function(s)
+    # | utility(s)
 
         function error {
-            logger -s -p user.error -t "$script_name" "$@"
+            if [ $verbose -eq 0 ]; then
+                logger -s -p user.error -t "$script" "$@"
+            else 
+                logger    -p user.error -t "$script" "$@"
+            fi
         }
 
         function log {
-            logger -s -p user.notice -t "$script_name" "$@"
+            if [ $verbose -eq 0 ]; then
+                logger -s -p user.notice -t "$script" "$@"
+            else 
+                logger    -p user.notice -t "$script" "$@"
+            fi
         }
 
         function usage {
             echo "$0 usage: $0 [pull|push]"
         }
 
-    # function(s) |
+    # utility(s) |
 
 
     # | main
@@ -151,13 +119,13 @@
         # check - arg(s)
         [ $# -lt 1 ] && usage && exit 2
 
-        # case - arg - 1
+        # case - $1 - action
         case "$1" in
             pull)       shift
-                        pull "$@"
+                        abs "pull" "$@"
                         ;;
             push)       shift
-                        push "$@"
+                        abs "push" "$@"
                         ;;
             *)          usage
                         ;;
@@ -168,6 +136,3 @@
 
 
 
-#
-#   <(0.o)>--
-#
