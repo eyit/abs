@@ -20,32 +20,27 @@
             [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
             [   -z "$1"                        ] && usage_create && exit 2
 
-            # var - details - config
+            # var - required
             password=$( cat "$dir_config/auth/password" )
             username=$( cat "$dir_config/auth/username" )
+            repository="$1"
 
-            # var - details - repository - name
-            name="$1"
-
-            # create
+            # create - repository
             curl=$(
 
-                curl    -ksS                            \
-                        -X POST                         \
-                        --user "$username:$password"    \
-                        "$url_api/repositories"         \
-                        -d "name=$name"
+                curl    -vksS                                           \
+                        -X POST                                         \
+                        --user "$username:$password"                    \
+                        "$url_api/repositories/$username/$repositor"
 
             )
 
-            # ? error
-            if [[ "$curl" == *"error"* ]]; then
-                echo "$curl"
-                exit 2
-            fi
+            # ? - error(s)
+            [[ "$curl" == ""        ]] && echo "error: empty response"      && exit 2
+            [[ "$curl" == *"error"* ]] && echo "error: unexpected response" && exit 2
 
-            # display - remote
-            echo "git@bitbucket.org:$username/$name.git"
+            # display - remote - string
+            echo "git@bitbucket.org:$username/$repository.git"
 
             # return
             return 0
@@ -178,15 +173,15 @@
         }
 
         function usage_create {
-            echo "$0 usage: $0 create {repository name}"
+            echo "$0 usage: $0 create [repository]"
         }
 
         function usage_delete {
-            echo "$0 usage: $0 delete {repository name}"
+            echo "$0 usage: $0 delete [repository]"
         }
 
         function usage_init {
-            echo "$0 usage: $0 init -u username -p password"
+            echo "$0 usage: $0 init -u [username] -p [password]"
         }
 
     # function(s) |
