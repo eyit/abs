@@ -108,7 +108,7 @@
         }
 
         function usage {
-            echo "$0 usage: $0 [pull|push]"
+            echo "$0 usage: $0 [fetch|pull|push]"
         }
 
     # utility(s) |
@@ -121,6 +121,9 @@
 
         # case - $1 - action
         case "$1" in
+            fetch)      shift
+                        abs "fetch" "$@"
+                        ;;
             pull)       shift
                         abs "pull" "$@"
                         ;;
