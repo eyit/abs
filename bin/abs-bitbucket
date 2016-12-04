@@ -54,27 +54,23 @@
             [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
             [   -z "$1"                        ] && usage_delete && exit 2
 
-            # var - details - config
+            # var - required
             password=$( cat "$dir_config/auth/password" )
             username=$( cat "$dir_config/auth/username" )
-
-            # var - details - repository - name
-            name="$1"
+            repository="$1"
 
             # delete
             curl=$(
 
-                curl    -ksS                                        \
-                        -X DELETE                                   \
-                        --user "$username:$password"                \
-                        "$url_api/repositories/$username/$name"
+                curl    -ksS                                            \
+                        -X DELETE                                       \
+                        --user "$username:$password"                    \
+                        "$url_api/repositories/$username/$repository"
 
             )
 
-            # ? error
-            if [[ "$curl" == *"error"* ]]; then
-                echo "$curl"
-            fi
+            # ? - error(s)
+            [[ "$curl" == *"error"* ]] && echo "error: unexpected response" && exit 2
 
             # return
             return 0
