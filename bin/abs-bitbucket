@@ -28,10 +28,10 @@
             # create - repository
             curl=$(
 
-                curl    -vksS                                           \
+                curl    -ksS                                            \
                         -X POST                                         \
                         --user "$username:$password"                    \
-                        "$url_api/repositories/$username/$repositor"
+                        "$url_api/repositories/$username/$repository"
 
             )
 
