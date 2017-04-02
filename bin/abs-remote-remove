@@ -1,0 +1,115 @@
+#!/bin/bash
+#
+#   abs-remote-remove
+#
+
+
+    # global(s)
+    script=$( basename $0 )
+    verbose=1
+
+
+    # | abs
+
+        function abs_remote_remove {
+
+            # argument(s)
+            while getopts ":b:d:v" FLAG; do
+                case "$FLAG" in
+                    b)  branch="$OPTARG"
+                        ;;
+                    d)  directory="$OPTARG"
+                        ;;
+                    v)  verbose=0
+                        ;;
+                esac
+            done
+
+            # log - init
+            log "Initiating remote removal"
+
+            # check - optional
+            [ -z "$branch"      ] && branch='master'
+            [ -z "$directory"   ] && directory='.'
+
+            # check - dir
+            [ ! -d "$directory" ] && error "Bad directory '$directory'" && exit 2
+
+            # relative -> absolute
+            directory=$( realpath "$directory" )
+
+            # log - directory
+            log "Found directory '$directory'"
+
+            # log - directory - search
+            log "Searching directory.."
+            log "Found '`find "$directory" -name "*.git" | wc -l`' git repositories"
+            log "Purging remotes"
+
+            # find - git(s)
+            for git in `find "$directory" -name "*.git"`; do
+
+                # directory
+                cd "$git"
+
+                # check - bare
+                if [[ "`git rev-parse --is-bare-repository`" == "false" ]]; then
+                    cd ".."
+                fi
+
+                # find remote(s)
+                for remote in `git remote`; do
+
+                    # git - action - remote - branch
+                    git remote remove "$remote" &> /dev/null
+
+                    # ? - result -> log
+                    if [ $? -eq 0 ]; then
+                        log   "Removing '$git' '$remote'"
+                    else
+                        error "Error '$git' '$remote:$branch'"
+                    fi
+
+                done
+
+            done
+
+            # log - complete
+            log "Purge complete"
+
+            # return
+            return 0
+
+        }
+
+    # abs |
+
+
+    # | utility(s)
+
+        function error {
+            if [ $verbose -eq 0 ]; then
+                logger -s -p user.error -t "$script" "$@."
+            else 
+                logger    -p user.error -t "$script" "$@."
+            fi
+        }
+
+        function log {
+            if [ $verbose -eq 0 ]; then
+                logger -s -p user.notice -t "$script" "$@."
+            else 
+                logger    -p user.notice -t "$script" "$@."
+            fi
+        }
+
+    # utility(s) |
+
+
+    # | main
+
+        abs_remote_remove "$@"
+
+    # main |
+
+
