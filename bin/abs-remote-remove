@@ -44,7 +44,7 @@
             # log - directory - search
             log "Searching directory.."
             log "Found '`find "$directory" -name "*.git" | wc -l`' git repositories"
-            log "Purging remotes"
+            log "Removing remotes"
 
             # find - git(s)
             for git in `find "$directory" -name "*.git"`; do
@@ -75,7 +75,7 @@
             done
 
             # log - complete
-            log "Purge complete"
+            log "Remove complete"
 
             # return
             return 0
