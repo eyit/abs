@@ -23,6 +23,7 @@ PARSER.add_argument("--dry-run", help="show command but do not run remote add", 
 PARSER.add_argument('--name', help="input a remote name", action="store", required=True)
 PARSER.add_argument("--prefix", help="specify a remote prefix", action="store")
 PARSER.add_argument("--seperator", help="specify a seperator", action="store")
+PARSER.add_argument("--strip", help="specify a string to strip", action="store")
 PARSER.add_argument("--suffix", help="specify a remote suffix", action="store")
 PARSER.add_argument("--verbose", help="show more detailed output", action="store_true")
 
@@ -33,6 +34,7 @@ DRY_RUN     = False
 NAME        = ""
 PREFIX      = ""
 SEPERATOR   = "-"
+STRIP       = ""
 SUFFIX      = ""
 VERBOSE     = False
 
@@ -48,28 +50,37 @@ def detect():
     global NAME
     global PREFIX
     global SEPERATOR
+    global STRIP
     global SUFFIX
     global VERBOSE
 
+    # set - direcctory
     if DIRECTORY == "":
         DIRECTORY = os.getcwd()
 
-    # clean - directory
-    DIRECTORY = DIRECTORY.replace('/git', '')
+    # command
+    repositories = os.popen('find "' + DIRECTORY + '" -name "*.git" | sort').read()
+    repositories = repositories.split("\n")
 
-    # prepare - path
-    path = DIRECTORY.replace('/', SEPERATOR)[1:]
+    # remove - last
+    del repositories[-1]
 
-    # prepare - command
-    command = "git remote add " + NAME + " " + PREFIX + path + SUFFIX
+    # loop - repositories
+    for repository in repositories:
 
-    # ? - dry - run
-    if DRY_RUN:
-        print(command)
-        sys.exit(0)
+        # repository -> remote
+        remote = repository.replace(STRIP, '')
+        remote = remote.replace('/', SEPERATOR)
+        remote = remote.replace('.git', '')[:-1]
 
-    # exec - command
-    os.system(command)
+        # prepare - command
+        command = "cd '"+ repository +"' && git remote add " + NAME + " " + PREFIX + remote + SUFFIX
+
+        # ? - dry - run
+        if DRY_RUN:
+            print(command)
+        else
+            os.system(command)
 
 
 
@@ -83,6 +94,7 @@ def main():
     global NAME
     global PREFIX
     global SEPERATOR
+    global STRIP
     global SUFFIX
     global VERBOSE
 
@@ -104,6 +116,10 @@ def main():
     # ? - prefix
     if arguments.prefix:
         PREFIX = arguments.prefix
+
+    # ? - strip
+    if arguments.strip:
+        STRIP = arguments.strip
 
     # ? - suffix
     if arguments.seperator:
