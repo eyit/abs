@@ -1,219 +1,267 @@
-#!/bin/bash
+#!/usr/bin/python3
 #
-#   bitbucket
+#
+#   A CLI interface to BitBucket REST API.
+#
 #
 
 
 
 
-    # global
-    dir_config="$HOME/.config/abs/bitbucket"
-    url_api="https://api.bitbucket.org/2.0"
+# import(s)
+from os.path import expanduser
+import argparse
+import os
+import requests
+import sys
 
 
-    # | feature(s)
-
-        function create {
-
-            # check(s)
-            [ ! -e "$dir_config/auth/password" ] && usage_init   && exit 2
-            [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
-            [   -z "$1"                        ] && usage_create && exit 2
-
-            # var - required
-            password=$( cat "$dir_config/auth/password" )
-            username=$( cat "$dir_config/auth/username" )
-            repository="$1"
-
-            # create - repository
-            curl=$(
-
-                curl    -ksS                                            \
-                        -X POST                                         \
-                        --user "$username:$password"                    \
-                        "$url_api/repositories/$username/$repository"
-
-            )
-
-            # ? - error(s)
-            [[ "$curl" == ""        ]] && echo "error: empty response"      && exit 2
-            [[ "$curl" == *"error"* ]] && echo "error: unexpected response" && exit 2
-
-            # display - remote - string
-            echo "git@bitbucket.org:$username/$repository.git"
-
-            # return
-            return 0
-
-        }
-
-        function delete {
-
-            # check(s)
-            [ ! -e "$dir_config/auth/password" ] && usage_init   && exit 2
-            [ ! -e "$dir_config/auth/username" ] && usage_init   && exit 2
-            [   -z "$1"                        ] && usage_delete && exit 2
-
-            # var - required
-            password=$( cat "$dir_config/auth/password" )
-            username=$( cat "$dir_config/auth/username" )
-            repository="$1"
-
-            # delete
-            curl=$(
-
-                curl    -ksS                                            \
-                        -X DELETE                                       \
-                        --user "$username:$password"                    \
-                        "$url_api/repositories/$username/$repository"
-
-            )
-
-            # ? - error(s)
-            [[ "$curl" == *"error"* ]] && echo "error: unexpected response" && exit 2
-
-            # return
-            return 0
-
-        }
-
-        function init {
-
-            # args
-            while getopts ":p:u:" FLAG; do
-                case "$FLAG" in
-                    p)  password="$OPTARG"
-                        ;;
-                    u)  username="$OPTARG"
-                        ;;
-                esac
-            done
-
-            # check(s)
-            [ -z "$password" ] && usage_init && exit 2
-            [ -z "$username" ] && usage_init && exit 2
-
-            # mkdir
-            mkdir -p "$dir_config/auth"
-
-            # set
-            echo "$password" > "$dir_config/auth/password"
-            echo "$username" > "$dir_config/auth/username"
-
-            # return
-            return 0
-
-        }
-
-        function list {
-
-            # arg - page
-            if [[ "$1" == "--page" ]]; then 
-                page="$2"
-            else
-                page=1
-            fi
-
-            # check(s)
-            [ ! -e "$dir_config/auth/password" ] && usage_init && exit 2
-            [ ! -e "$dir_config/auth/username" ] && usage_init && exit 2
-
-            # var - details - config
-            password=$( cat "$dir_config/auth/password" )
-            username=$( cat "$dir_config/auth/username" )
-
-            # list
-            curl=$(
-
-                curl    -ksS                                                    \
-                        -X GET                                                  \
-                        --user "$username:$password"                            \
-                        "$url_api/repositories/_tim_tim?page=$page&pagelen=100"
-
-            )
-
-            # response
-            [ -z "$curl" ] && echo "error: bad response" && exit 2
-
-            # clean
-            clean=$(
-
-                echo $curl              \
-                | python -m json.tool   \
-                | grep '"full_name": "' \
-                | awk '{print $2}'      \
-                | sed 's/\"//g'         \
-                | tr -d ,               \
-                | sort
-
-            )
-
-            # display
-            for repo in `echo $clean`
-            do
-                echo "git@bitbucket.org:$repo.git"
-            done
-
-            # return
-            return 0
-
-        }
-
-    # feature(s) |
+# argument(s)
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument('option', choices=['create','delete','init','list'])
+PARSER.add_argument("--username", help="specify a username", action="store", dest="user_username")
+PARSER.add_argument("--password", help="specify a password", action="store", dest="user_password")
+PARSER.add_argument("--repository", help="specify a repository", action="store", dest="repository")
+PARSER.add_argument("--verbose", help="show more detailed output", action="store_true")
 
 
-    # | function(s)
-
-        function usage {
-            echo "$0 usage: $0 [create|delete|init|remove|list]"
-        }
-
-        function usage_create {
-            echo "$0 usage: $0 create [repository]"
-        }
-
-        function usage_delete {
-            echo "$0 usage: $0 delete [repository]"
-        }
-
-        function usage_init {
-            echo "$0 usage: $0 init -u [username] -p [password]"
-        }
-
-    # function(s) |
-
-
-    # | main
-
-        # check - arg(s)
-        [ $# -lt 1 ] && usage && exit 2
-
-        # case - arg - 1
-        case "$1" in
-            create)     shift
-                        create $@
-                        ;;
-            delete)     shift
-                        delete $@
-                        ;;
-            init)       shift
-                        init $@
-                        ;;
-            list)       shift
-                        list $@
-                        ;;
-            remove)     shift
-                        delete $@
-                        ;;
-            *)          usage
-                        ;;
-        esac
-
-    # main |
+# global(s)
+DIRECTORY_HOME   = expanduser("~")
+DIRECTORY_CONFIG = DIRECTORY_HOME + "/.config/abs/remote/vendor/bitbucket"
+REPOSITORY       = ""
+USER_USERNAME    = ""
+USER_PASSWORD    = ""
+URL_API          = "https://api.bitbucket.org/2.0"
+VERBOSE          = False
 
 
 
 
-#
-#   <(%.0)>
-#
+# display
+def display(message):
+    if VERBOSE == True:
+        print(message.capitalize() + ".")
+
+
+
+
+# feature(s)
+def feature_create():
+
+    # global(s)
+    global REPOSITORY
+    global URL_API
+    global USER_USERNAME
+    global USER_PASSWORD
+
+    # display - init - start
+    display('attempting to create a new repository')
+
+    # ? - repository
+    if not REPOSITORY:
+        REPOSITORY = input("Enter repository name: ")
+
+    # create - repository -> bitbucket
+    request = requests.post(
+        URL_API + "/repositories/" + USER_USERNAME + "/" + REPOSITORY,
+        auth=(USER_USERNAME, USER_PASSWORD)
+    )
+
+    # check - error
+    if request.status_code != 200:
+        display("request failed with http status code '" + str(request.status_code) + "'")
+        sys.exit(request.status_code)
+
+    # display - slug
+    print("git@bitbucket,org" + USER_USERNAME + "/" + REPOSITORY + ".git")
+
+    # display - init - end
+    display("created new repository '" + REPOSITORY + "'")
+
+
+def feature_delete():
+
+    # global(s)
+    global REPOSITORY
+    global URL_API
+    global USER_USERNAME
+    global USER_PASSWORD
+
+    # display - init - start
+    display('attempting to delete an existing repository')
+
+    # ? - repository
+    if not REPOSITORY:
+        REPOSITORY = input("Enter repository name: ")
+
+    # delete - repository -> bitbucket
+    request = requests.delete(
+        URL_API + "/repositories/" + USER_USERNAME + "/" + REPOSITORY,
+        auth=(USER_USERNAME, USER_PASSWORD)
+    )
+
+    # check - error
+    if request.status_code != 200:
+        display("request failed with http status code '" + str(request.status_code) + "'")
+        sys.exit(request.status_code)
+
+    # display - init - end
+    display("deleted repository '" + REPOSITORY + "'")
+
+
+def feature_init():
+
+    # global(s)
+    global USER_USERNAME
+    global USER_PASSWORD
+
+    # display - init - start
+    display('initializing bitbucket configuration')
+
+    # ? - username
+    if not USER_USERNAME:
+        USER_USERNAME = input("Enter bitbucket username: ")
+
+    # ? - password
+    if not USER_PASSWORD:
+        USER_PASSWORD = input("Enter bitbucket password: ")
+
+    # write -> config -> username
+    with open(DIRECTORY_CONFIG + "/username", 'w') as out:
+        out.write(USER_USERNAME + '\n')
+
+    # write -> config -> password
+    with open(DIRECTORY_CONFIG + "/password", 'w') as out:
+        out.write(USER_PASSWORD + '\n')
+
+    # display - init - end
+    display('initializing complete')
+
+
+def feature_list():
+
+    # global(s)
+    global URL_API
+    global USER_USERNAME
+    global USER_PASSWORD
+
+    # display - list - start
+    display('attempting to list repositories')
+
+    # var - repositories
+    repositories = []
+
+    # var - url
+    url = URL_API + "/repositories/" + USER_USERNAME
+
+    # loop - request - repositories
+    while url != "":
+
+        # request - repository(s)
+        request = requests.get(
+            url,
+            auth=(USER_USERNAME, USER_PASSWORD)
+        )
+
+        # deocde - response -> json
+        json = request.json()
+
+        # build - repositories
+        for value in json['values']:
+            repository         = {}
+            repository['name'] = value['name']
+            repository['url']  = "https://bitbucket.org/" + value['full_name']
+            repositories.append(repository)
+
+        # var - url
+        try:
+            url = json['next']
+        except:
+            url = ""
+
+    # sort - repositories
+    repositories = sorted(repositories, key=lambda k: k['name']) 
+
+    # print
+    for repository in repositories:
+        print(repository['name'])
+
+    # display - list - complete
+    display('list complete')
+
+
+
+
+# load
+def load_config():
+
+    # global(s)
+    global USER_USERNAME
+    global USER_PASSWORD
+
+    # write -> config -> username
+    if os.path.exists(DIRECTORY_CONFIG + '/username'):
+        with open(DIRECTORY_CONFIG + "/username", 'r') as out:
+            USER_USERNAME = out.read().replace('\n', '')
+
+    # write -> config -> password
+    if os.path.exists(DIRECTORY_CONFIG + '/password'):
+        with open(DIRECTORY_CONFIG + "/password", 'r') as out:
+            USER_PASSWORD = out.read().replace('\n', '')
+
+
+
+
+# main
+def main():
+
+    # global(s)
+    global REPOSITORY
+    global USER_USERNAME
+    global USER_PASSWORD
+    global VERBOSE
+
+    # ? - config
+    if not os.path.exists(DIRECTORY_CONFIG):
+        os.makedirs(DIRECTORY_CONFIG)
+
+    # load - config
+    load_config()
+
+    # get - argument(s)
+    arguments = PARSER.parse_args()
+
+    # ? - repository
+    if arguments.repository:
+        REPOSITORY = arguments.repository
+
+    # ? - user - password
+    if arguments.user_password:
+        USER_PASSWORD = arguments.user_password
+
+    # ? - user - username
+    if arguments.user_username:
+        USER_USERNAME = arguments.user_username
+
+    # ? - verbose
+    if arguments.verbose:
+        VERBOSE = True
+
+    # arguments - option -> feature
+    if   arguments.option == "create":
+        feature_create()
+    elif arguments.option == "delete":
+        feature_delete()
+    elif arguments.option == "init":
+        feature_init()
+    elif arguments.option == "list":
+        feature_list()
+    else:
+        display("invalid option")
+        sys.exit(2)
+
+main()
+
+
+
+
