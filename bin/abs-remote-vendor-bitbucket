@@ -73,7 +73,7 @@ def feature_create():
         sys.exit(request.status_code)
 
     # display - slug
-    print("git@bitbucket,org" + USER_USERNAME + "/" + REPOSITORY + ".git")
+    print("git@bitbucket.org:" + USER_USERNAME + "/" + REPOSITORY + ".git")
 
     # display - init - end
     display("created new repository '" + REPOSITORY + "'")
