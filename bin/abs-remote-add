@@ -27,14 +27,14 @@ PARSER.add_argument("--remote-suffix",      help="specify a remote suffix",     
 PARSER.add_argument("--verbose",            help="show more detailed output",               action="store_true")
 
 # global(s)
-DIRECTORY   = ""
-DRY_RUN     = False
-REMOTE_NAME        = ""
-REMOTE_PREFIX      = ""
-REMOTE_SEPERATOR   = "-"
-REMOTE_STRIP       = ""
-REMOTE_SUFFIX      = ""
-VERBOSE     = False
+DIRECTORY           = ""
+DRY_RUN             = False
+REMOTE_NAME         = ""
+REMOTE_PREFIX       = ""
+REMOTE_SEPERATOR    = "-"
+REMOTE_STRIP        = ""
+REMOTE_SUFFIX       = ""
+VERBOSE             = False
 
 
 # process
@@ -66,7 +66,7 @@ def process():
 
         # repository -> remote
         remote = repository.replace('/', REMOTE_SEPERATOR)
-        remote = remote.replace('.git', '')[1:-1]
+        remote = remote.replace('.git', '')[1:]
         remote = remote.replace(REMOTE_STRIP, '')
 
         # prepare - command
