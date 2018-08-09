@@ -12,10 +12,10 @@ ABS uses CRON to periodically check your GIT repositories and push any changes t
 ### ABS Remote Add
 
 * Example #1: Add a remote by name.  
-    * `abs-remote-add --remote-name bitbucket` outputs `cd 'common/dot/.git' && git remote add bitbucket git-common-dot-`
+    * `abs-remote-add --remote-name bitbucket` outputs `cd 'common/dot/.git' && git remote add bitbucket git-common-dot`
 
 * Example #2: Add a remote by name & directory.  
-    * `abs-remote-add --remote-name bitbucket --directory /tmp` outputs `cd '/tmp/common/dot/.git' && git remote add bitbucket git-common-dot-`
+    * `abs-remote-add --remote-name bitbucket --directory /tmp` outputs `cd '/tmp/common/dot/.git' && git remote add bitbucket git-common-dot`
 
 * Example #3: Add a remote by name & prefix.  
     * `/git/develop/script/abs/bin/abs-remote-add --dry-run --remote-name bitbucket --directory common --remote-prefix "git@bitbucket.org:tiye/"` outputs `cd 'common/dot/.git' && git remote add bitbucket git@bitbucket.org:tiye/common-dot`
