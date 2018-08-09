@@ -17,14 +17,14 @@ import sys
 
 # argument(s)
 PARSER = argparse.ArgumentParser()
-PARSER.add_argument("--directory",  help="specify a working directory",             action="store")
-PARSER.add_argument("--dry-run",    help="show command but do not run remote add",  action="store_true")
-PARSER.add_argument('--name',       help="input a remote name",                     action="store", required=True)
-PARSER.add_argument("--prefix",     help="specify a remote prefix",                 action="store")
-PARSER.add_argument("--seperator",  help="specify the remote seperator",            action="store")
-PARSER.add_argument("--strip",      help="specify a string to strip",               action="store")
-PARSER.add_argument("--suffix",     help="specify a remote suffix",                 action="store")
-PARSER.add_argument("--verbose",    help="show more detailed output",               action="store_true")
+PARSER.add_argument("--directory",          help="specify a working directory",             action="store")
+PARSER.add_argument("--dry-run",            help="show command but do not run remote add",  action="store_true")
+PARSER.add_argument('--remote-name',        help="input a remote name",                     action="store", required=True)
+PARSER.add_argument("--remote-prefix",      help="specify a remote prefix",                 action="store")
+PARSER.add_argument("--remote-seperator",   help="specify the remote seperator",            action="store")
+PARSER.add_argument("--remote-strip",       help="specify a string to strip",               action="store")
+PARSER.add_argument("--remote-suffix",      help="specify a remote suffix",                 action="store")
+PARSER.add_argument("--verbose",            help="show more detailed output",               action="store_true")
 
 # global(s)
 DIRECTORY   = ""
