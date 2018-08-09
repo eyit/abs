@@ -103,24 +103,24 @@ def main():
     if arguments.dry_run:
         DRY_RUN = True
 
-    # ? - name
-    if arguments.name:
+    # ? - remote - name
+    if arguments.remote_name:
         REMOTE_NAME = arguments.remote_name
 
-    # ? - prefix
-    if arguments.prefix:
+    # ? - remote - prefix
+    if arguments.remote_prefix:
         REMOTE_PREFIX = arguments.remote_prefix
 
-    # ? - strip
-    if arguments.strip:
+    # ? - remote - strip
+    if arguments.remote_strip:
         REMOTE_STRIP = arguments.remote_strip
 
-    # ? - suffix
-    if arguments.seperator:
+    # ? - remote - seperator
+    if arguments.remote_seperator:
         REMOTE_SEPERATOR = arguments._seperator
 
-    # ? - suffix
-    if arguments.suffix:
+    # ? - remote - suffix
+    if arguments.remote_suffix:
         REMOTE_SUFFIX = arguments.remote_suffix
 
     # ? - verbose
