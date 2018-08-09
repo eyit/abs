@@ -29,11 +29,11 @@ PARSER.add_argument("--verbose",            help="show more detailed output",   
 # global(s)
 DIRECTORY   = ""
 DRY_RUN     = False
-NAME        = ""
-PREFIX      = ""
-SEPERATOR   = "-"
-STRIP       = ""
-SUFFIX      = ""
+REMOTE_NAME        = ""
+REMOTE_PREFIX      = ""
+REMOTE_SEPERATOR   = "-"
+REMOTE_STRIP       = ""
+REMOTE_SUFFIX      = ""
 VERBOSE     = False
 
 
@@ -43,11 +43,11 @@ def process():
     # global(s)
     global DIRECTORY
     global DRY_RUN
-    global NAME
-    global PREFIX
-    global SEPERATOR
-    global STRIP
-    global SUFFIX
+    global REMOTE_NAME
+    global REMOTE_PREFIX
+    global REMOTE_SEPERATOR
+    global REMOTE_STRIP
+    global REMOTE_SUFFIX
     global VERBOSE
 
     # set - direcctory
@@ -65,12 +65,12 @@ def process():
     for repository in repositories:
 
         # repository -> remote
-        remote = repository.replace('/', SEPERATOR)
+        remote = repository.replace('/', REMOTE_SEPERATOR)
         remote = remote.replace('.git', '')[1:-1]
-        remote = remote.replace(STRIP, '')
+        remote = remote.replace(REMOTE_STRIP, '')
 
         # prepare - command
-        command = "cd '"+ repository +"' && git remote add " + NAME + " " + PREFIX + remote + SUFFIX
+        command = "cd '"+ repository +"' && git remote add " + REMOTE_NAME + " " + REMOTE_PREFIX + remote + REMOTE_SUFFIX
 
         # ? - dry - run
         if DRY_RUN:
@@ -85,11 +85,11 @@ def main():
     # global(s)
     global DIRECTORY
     global DRY_RUN
-    global NAME
-    global PREFIX
-    global SEPERATOR
-    global STRIP
-    global SUFFIX
+    global REMOTE_NAME
+    global REMOTE_PREFIX
+    global REMOTE_SEPERATOR
+    global REMOTE_STRIP
+    global REMOTE_SUFFIX
     global VERBOSE
 
     # get - argument(s)
@@ -105,23 +105,23 @@ def main():
 
     # ? - name
     if arguments.name:
-        NAME = arguments.name
+        REMOTE_NAME = arguments.remote_name
 
     # ? - prefix
     if arguments.prefix:
-        PREFIX = arguments.prefix
+        REMOTE_PREFIX = arguments.remote_prefix
 
     # ? - strip
     if arguments.strip:
-        STRIP = arguments.strip
+        REMOTE_STRIP = arguments.remote_strip
 
     # ? - suffix
     if arguments.seperator:
-        SEPERATOR = arguments.seperator
+        REMOTE_SEPERATOR = arguments._seperator
 
     # ? - suffix
     if arguments.suffix:
-        SUFFIX = arguments.suffix
+        REMOTE_SUFFIX = arguments.remote_suffix
 
     # ? - verbose
     if arguments.verbose:
