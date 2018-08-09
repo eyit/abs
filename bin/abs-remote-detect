@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 #
 #
-#   A CLI tool to set git remote(s).
+#   Automatic Backup System (ABS)
+#
+#   Remote set: Recursively assign git remotes based on supplied input(s).
 #
 #
-
-
 
 
 # import(s)
@@ -15,18 +15,16 @@ import os
 import requests
 import sys
 
-
 # argument(s)
 PARSER = argparse.ArgumentParser()
-PARSER.add_argument("--directory", help="specify a working directory", action="store")
-PARSER.add_argument("--dry-run", help="show command but do not run remote add", action="store_true")
-PARSER.add_argument('--name', help="input a remote name", action="store", required=True)
-PARSER.add_argument("--prefix", help="specify a remote prefix", action="store")
-PARSER.add_argument("--seperator", help="specify a seperator", action="store")
-PARSER.add_argument("--strip", help="specify a string to strip", action="store")
-PARSER.add_argument("--suffix", help="specify a remote suffix", action="store")
-PARSER.add_argument("--verbose", help="show more detailed output", action="store_true")
-
+PARSER.add_argument("--directory",  help="specify a working directory",             action="store")
+PARSER.add_argument("--dry-run",    help="show command but do not run remote add",  action="store_true")
+PARSER.add_argument('--name',       help="input a remote name",                     action="store", required=True)
+PARSER.add_argument("--prefix",     help="specify a remote prefix",                 action="store")
+PARSER.add_argument("--seperator",  help="specify the remote seperator",            action="store")
+PARSER.add_argument("--strip",      help="specify a string to strip",               action="store")
+PARSER.add_argument("--suffix",     help="specify a remote suffix",                 action="store")
+PARSER.add_argument("--verbose",    help="show more detailed output",               action="store_true")
 
 # global(s)
 DIRECTORY   = ""
@@ -39,10 +37,8 @@ SUFFIX      = ""
 VERBOSE     = False
 
 
-
-
-# detect
-def detect():
+# process
+def process():
 
     # global(s)
     global DIRECTORY
@@ -69,9 +65,9 @@ def detect():
     for repository in repositories:
 
         # repository -> remote
-        remote = repository.replace(STRIP, '')
-        remote = remote.replace('/', SEPERATOR)
-        remote = remote.replace('.git', '')[:-1]
+        remote = repository.replace('/', SEPERATOR)
+        remote = remote.replace('.git', '')[1:-1]
+        remote = remote.replace(STRIP, '')
 
         # prepare - command
         command = "cd '"+ repository +"' && git remote add " + NAME + " " + PREFIX + remote + SUFFIX
@@ -79,10 +75,8 @@ def detect():
         # ? - dry - run
         if DRY_RUN:
             print(command)
-        else
+        else:
             os.system(command)
-
-
 
 
 # main
@@ -133,11 +127,9 @@ def main():
     if arguments.verbose:
         VERBOSE = True
 
-    # detect
-    detect()
+    # process
+    process()
 
 main()
-
-
 
 
