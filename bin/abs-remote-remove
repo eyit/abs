@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+#
+#
+#   Automatic Backup System (ABS)
+#
+#   Remote remove: Recursively remove git remotes based on supplied input(s).
+#
+#
+
+
+# import(s)
+from os.path import expanduser
+import argparse
+import os
+import requests
+import sys
+
+# argument(s)
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument("--directory",          help="specify a working directory",             action="store")
+PARSER.add_argument("--dry-run",            help="show command but do not run remote add",  action="store_true")
+PARSER.add_argument('--remote-name',        help="input a remote name",                     action="store", required=True)
+PARSER.add_argument("--verbose",            help="show more detailed output",               action="store_true")
+
+# global(s)
+DIRECTORY   = ""
+DRY_RUN     = False
+REMOTE_NAME = ""
+VERBOSE     = False
+
+
+# process
+def process():
+
+    # global(s)
+    global DIRECTORY
+    global DRY_RUN
+    global REMOTE_NAME
+    global VERBOSE
+
+    # set - direcctory
+    if DIRECTORY == "":
+        DIRECTORY = os.getcwd()
+
+    # command
+    repositories = os.popen('find "' + DIRECTORY + '" -name "*.git" | sort').read()
+    repositories = repositories.split("\n")
+
+    # remove - last
+    del repositories[-1]
+
+    # loop - repositories
+    for repository in repositories:
+
+        # prepare - command
+        command = "cd '"+ repository +"' && git remote remove " + REMOTE_NAME
+
+        # ? - dry - run
+        if DRY_RUN:
+            print(command)
+        else:
+            os.system(command)
+
+
+# main
+def main():
+
+    # global(s)
+    global DIRECTORY
+    global DRY_RUN
+    global REMOTE_NAME
+    global VERBOSE
+
+    # get - argument(s)
+    arguments = PARSER.parse_args()
+
+    # ? - directory
+    if arguments.directory:
+        DIRECTORY = arguments.directory
+
+    # ? - dry - run
+    if arguments.dry_run:
+        DRY_RUN = True
+
+    # ? - remote - name
+    if arguments.remote_name:
+        REMOTE_NAME = arguments.remote_name
+
+    # ? - verbose
+    if arguments.verbose:
+        VERBOSE = True
+
+    # process
+    process()
+
+main()
+
+
