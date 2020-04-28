@@ -146,8 +146,9 @@ positional arguments:
   {fetch,pull,push}
 
 optional arguments:
-  -h,--help                 show this help message and exit
+  -b,--branch BRANCH        specify a target branch (default master)
   -d,--directory DIRECTORY  specify a target directory
+  -h,--help                 show this help message and exit
   -n,--dry-run              show commands, does not exec
   -q,--quiet                suppresses stdout messages
 EndOfMessage
