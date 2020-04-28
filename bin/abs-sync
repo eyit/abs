@@ -5,6 +5,7 @@
 
 
     # global(s)
+    name='abs';
     dry_run=1
     verbose=0
 
@@ -33,7 +34,7 @@
                         help "$action"
                         exit 1
                         ;;
-                    -dr|--dry-run)
+                    -n|--dry-run)
                         dry_run=0
                         ;;
                     -q|--quiet)
@@ -58,9 +59,17 @@
             # relative -> absolute
             directory=$( realpath "$directory" )
 
+            # count .git repositories
+            count=$( find "$directory" -name "*.git" | wc -l )
+
             # log directory search
             log "Searching directory '$directory'."
-            log "Found '`find "$directory" -name "*.git" | wc -l`' git repositories."
+            log "Found '$count' git repositories."
+
+            # exit on 0
+            [ "$count" -eq 0 ] && log "Stopping." && exit 2
+
+            # log action start
             log "Starting '$action'."
 
             # spacer
@@ -108,6 +117,9 @@
             # spacer
             echo ""
 
+            # display stopped
+            log "Stopping."
+
             # return
             return 0
 
@@ -124,6 +136,22 @@
             fi
         }
 
+        function help {
+            cat <<-EndOfMessage
+usage: $name [-h] [--branch BRANCH] [--directory DIRECTORY]
+                                    [--dry-run] [--quiet]
+                                        {fetch,pull,push}
+
+positional arguments:
+  {fetch,pull,push}
+
+optional arguments:
+  -h,--help                 show this help message and exit
+  -d,--directory DIRECTORY  specify a target directory
+  -n,--dry-run              show commands, does not exec
+  -q,--quiet                suppresses stdout messages
+EndOfMessage
+        }
         function log {
             if [ $verbose -eq 0 ]; then
                 echo "$@"
@@ -143,17 +171,10 @@
 
     # | main
 
-        # arg check
-        if [ $# -lt 1 ]; then
-            usage
-			exit 2
-        fi
-
-        # help check
-        if [ "$1" == "--help" ] | [ "$1" == -h ]; then
-            help
-            exit 1
-        fi
+        # check(s)
+        [ $# -lt 1 ]         && usage && exit 1
+        [ "$1" == "--help" ] && help  && exit 1
+        [ "$1" == "-h" ]     && help  && exit 1
 
         # case $1 action
         case "$1" in

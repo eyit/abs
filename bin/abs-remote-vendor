@@ -10,7 +10,13 @@
     # | function(s)
 
         function help {
-            echo "help: missing."
+            cat <<-EndOfMessage
+usage: $name {bitbucket}
+
+positional arguments:
+  {bitbucket}
+EndOfMessage
+
         }
 
         function usage {
@@ -22,17 +28,10 @@
 
     # | main
 
-        # argv check
-        if [ $# -eq 0 ]; then
-            usage
-            exit 2
-        fi
-
-        # help check
-        if [ "$1" == "--help" ] | [ "$1" == -h ]; then
-            help
-            exit 1
-        fi
+        # check(s)
+        [ $# -lt 1 ]         && usage && exit 1
+        [ "$1" == "--help" ] && help  && exit 1
+        [ "$1" == "-h" ]     && help  && exit 1
 
         # script
         script="$1"

@@ -10,11 +10,16 @@
     # | function(s)
 
         function help {
-            echo "help: help missing"
+            cat <<-EndOfMessage
+usage: $name {add,remove,vendor}
+
+positional arguments:
+  {add,remove,vendor}
+EndOfMessage
         }
 
         function usage {
-            echo "usage: $name {add,help,remove,vendor}"
+            echo "usage: $name [-h|--help] {add,remove,vendor}"
         }
 
     # function(s) |
@@ -22,17 +27,10 @@
 
     # | main
 
-        # argv check
-        if [ $# -eq 0 ]; then
-            usage
-            exit 1
-        fi
-
-        # help check
-        if [ "$1" == "--help" ] | [ "$1" == -h ]; then
-            help
-            exit 1
-        fi
+        # check(s)
+        [ $# -lt 1 ]         && usage && exit 1
+        [ "$1" == "--help" ] && help  && exit 1
+        [ "$1" == "-h" ]     && help  && exit 1
 
         # script
         script="$1"
@@ -41,8 +39,6 @@
         # arg(s) - type
         case "$script" in
             'add')          "$root/bin/abs-remote-add" $@
-                            ;;
-            'help')         help
                             ;;
             'remove')       "$root/bin/abs-remote-remove" $@
                             ;;
