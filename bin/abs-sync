@@ -1,0 +1,179 @@
+#!/bin/bash
+#
+#   abs sync
+#
+
+
+    # global(s)
+    dry_run=1
+    verbose=0
+
+
+    # | abs
+
+        function sync {
+
+            # action
+            action="$1"
+            shift
+
+            # arg(s)
+            while [[ $# -gt 0 ]]
+            do
+                case "$1" in
+                    -b|--branch)
+                        branch="$2"
+                        shift
+                        ;;
+                    -d|--directory)
+                        directory="$2"
+                        shift
+                        ;;
+                    -h|--help)
+                        help "$action"
+                        exit 1
+                        ;;
+                    -dr|--dry-run)
+                        dry_run=0
+                        ;;
+                    -q|--quiet)
+                        verbose=1
+                        ;;
+                    *)  usage_sync "$action"
+                        exit 1
+                        ;;
+                esac
+                shift
+            done
+
+            # log init
+
+            # check optional
+            [ -z "$branch"      ] && branch='master'
+            [ -z "$directory"   ] && directory='.'
+
+            # check dir
+            [ ! -d "$directory" ] && error "Bad directory '$directory'" && exit 2
+
+            # relative -> absolute
+            directory=$( realpath "$directory" )
+
+            # log directory search
+            log "Searching directory '$directory'."
+            log "Found '`find "$directory" -name "*.git" | wc -l`' git repositories."
+            log "Starting '$action'."
+
+            # spacer
+            echo ""
+
+            # find git(s)
+            for git in `find "$directory" -name "*.git" | sort`; do
+
+                # directory log (dry run)
+                [ $dry_run -eq 0 ] && log cd "$git"
+
+                # directory change
+                cd "$git"
+
+                # check bare
+                if [[ "`git rev-parse --is-bare-repository`" == "false" ]]; then
+                    cd ".."
+                fi
+
+                # find remote(s)
+                for remote in `git remote`; do
+
+                    # git action remote branch
+                    if [ $dry_run -eq 1 ]; then
+
+                        # run git
+                        git "$action" "$remote" "$branch" &> /dev/null
+
+                        # check result status
+                        if [ $? -eq 0 ]; then
+                            log "[x] git $action $git $remote:$branch"
+                        else
+                            log "[!] git $action $git $remote:$branch"
+                        fi
+
+                    # git action remote branch (dry run)
+                    else
+                        log git "$action" "$remote" "$branch"
+                    fi
+
+                done
+
+            done
+
+            # spacer
+            echo ""
+
+            # return
+            return 0
+
+        }
+
+    # abs |
+
+
+    # | utility(s)
+
+        function error {
+            if [ $verbose -eq 0 ]; then
+                echo "abs $action" "$@"
+            fi
+        }
+
+        function log {
+            if [ $verbose -eq 0 ]; then
+                echo "$@"
+            fi
+        }
+
+        function usage {
+            echo "usage: abs {fetch,pull,push}"
+        }
+
+        function usage_sync {
+            echo "usage: abs $action [-h] [--branch BRANCH] [--directory DIRECTORY] [--dry-run] [--quiet]"
+        }
+
+    # utility(s) |
+
+
+    # | main
+
+        # arg check
+        if [ $# -lt 1 ]; then
+            usage
+			exit 2
+        fi
+
+        # help check
+        if [ "$1" == "--help" ] | [ "$1" == -h ]; then
+            help
+            exit 1
+        fi
+
+        # case $1 action
+        case "$1" in
+            fetch)      shift
+                        sync "fetch" "$@"
+                        ;;
+            pull)       shift
+                        sync "pull" "$@"
+                        ;;
+            push)       shift
+                        sync "push" "$@"
+                        ;;
+            *)          usage
+                        exit 1
+                        ;;
+        esac
+
+    # main |
+
+
+#
+#   %)_)>
+#
