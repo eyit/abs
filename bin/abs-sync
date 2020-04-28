@@ -100,9 +100,9 @@
 
                         # check result status
                         if [ $? -eq 0 ]; then
-                            log "[x] git $action $git $remote:$branch"
+                            log "[x] git $action $git $remote $branch"
                         else
-                            log "[!] git $action $git $remote:$branch"
+                            log "[!] git $action $git $remote $branch"
                         fi
 
                     # git action remote branch (dry run)
