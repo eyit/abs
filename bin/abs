@@ -10,7 +10,7 @@
     # | function(s)
 
         function help {
-            echo "Error: Help missing."
+            echo "help: missing"
         }
 
         function usage {
