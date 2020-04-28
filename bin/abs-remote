@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   abs
+#   abs remote
 #
 
     root=$( cd "$(dirname "$(realpath ${BASH_SOURCE[0]})")/.." ; pwd -P );
@@ -14,7 +14,7 @@
         }
 
         function usage {
-            echo "usage: $name {help,fetch,push,pull,remote}"
+            echo "usage: $name {add,help,remove,vendor}"
         }
 
     # function(s) |
@@ -40,13 +40,13 @@
 
         # arg(s) - type
         case "$script" in
-            'fetch')        "$root/bin/abs-sync" "fetch" $@
+            'add')          "$root/bin/abs-remote-add" $@
                             ;;
-            'push')         "$root/bin/abs-sync" "push" $@
+            'help')         help
                             ;;
-            'pull')         "$root/bin/abs-sync" "pull" $@
+            'remove')       "$root/bin/abs-remote-remove" $@
                             ;;
-            'remote')       "$root/bin/abs-remote" $@
+            'vendor')       "$root/bin/abs-remote-vendor" $@
                             ;;
             *)              usage
                             ;;

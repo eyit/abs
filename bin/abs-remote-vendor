@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   abs
+#   abs remote vendor
 #
 
     root=$( cd "$(dirname "$(realpath ${BASH_SOURCE[0]})")/.." ; pwd -P );
@@ -14,7 +14,7 @@
         }
 
         function usage {
-            echo "usage: $name {help,fetch,push,pull,remote}"
+            echo "usage: $name {bitbucket}"
         }
 
     # function(s) |
@@ -25,7 +25,7 @@
         # argv check
         if [ $# -eq 0 ]; then
             usage
-            exit 1
+            exit 2
         fi
 
         # help check
@@ -40,13 +40,9 @@
 
         # arg(s) - type
         case "$script" in
-            'fetch')        "$root/bin/abs-sync" "fetch" $@
+            'bitbucket')    "$root/bin/abs-remote-vendor-bitbucket" $@
                             ;;
-            'push')         "$root/bin/abs-sync" "push" $@
-                            ;;
-            'pull')         "$root/bin/abs-sync" "pull" $@
-                            ;;
-            'remote')       "$root/bin/abs-remote" $@
+            'help')         help
                             ;;
             *)              usage
                             ;;
