@@ -1,42 +1,88 @@
-# Automatic Backup System (ABS)
+# Automatic Backup System (ABS) #
 
+Recursively manage git repositories for backup.
 
-## Overview
+## Getting Started ##
+These instructions will get you a copy of the project up and running on your local machine.
 
-ABS uses CRON to periodically check your GIT repositories and push any changes to a designated remote.  
-*ABS was not intended for collaboratively work, but instead a lazy backup method for loose scripts*  
+### Installation ###
 
+Clone the repository from github.  
+``git clone https://github.com/eyit/abs.git``  
+  
+## Usage ##
 
-## Usage
+### Commands ###
+  
+#### abs fetch ####
+  
+Perform a recursive search on current directory and perform ``git fetch`` for each repo.  
+``abs fetch``  
+  
+See additional options such as `--directory DIRECTORY` by adding the argument ``--help``.  
+``abs fetch --help``  
+  
+  
+#### abs pull ####
+  
+Perform a recursive search on current directory and perform ``git pull`` for each repo.  
+``abs pull``  
+  
+See additional options such as `--directory DIRECTORY` by adding the argument ``--help``.  
+``abs pull --help``  
+  
+  
+#### abs push ####
+  
+Perform a recursive search on current directory and perform ``git push`` for each repo.  
+``abs push``  
 
-### ABS Remote Add
+See additional options such as `--directory DIRECTORY` by adding the argument ``--help``.  
+``abs push --help``
+  
+  
+#### abs remote add ####
+  
+Add a remote with the name ``bitbucket``:  
+``abs remote add --remote-name bitbucket``  
+  
+Add a remote by name and specify the directory to search.  
+``abs remote add --remote-name bitbucket --directory /git``.  
+  
+See additional options such as `--prefix PREFIX` and ``--suffix SUFFIX`` by adding the argument ``--help``.  
+``abs remote add --help``  
+  
+  
+#### abs remote remove ####
+  
+Remove a remote with the name ``bitbucket``.  
+``abs remote remove --remote-name bitbucket``  
+  
+See additional options such as `--directory DIRECTORY` by adding the argument ``--help``.  
+``abs remote add --help``  
+  
+  
+#### abs remote vendor bitbucket ####
+  
+Initialise ``bitbucket`` vendor by adding the ``init``, ``--username`` and ``--password`` arguments.  
+``abs remote vendor bitbucket init --username USERNAME --password PASSWORD``  
+  
+Create a remote repository.  
+``abs remote vendor bitbucket create --repository REPOSITORY``  
+  
+List remote repositories.  
+``abs remote vendor bitbucket list``  
 
-* Example #1: Add a remote by name.  
-    * `abs-remote-add --remote-name bitbucket` outputs `cd 'common/dot/.git' && git remote add bitbucket git-common-dot`
-
-* Example #2: Add a remote by name & directory.  
-    * `abs-remote-add --remote-name bitbucket --directory /tmp` outputs `cd '/tmp/common/dot/.git' && git remote add bitbucket git-common-dot`
-
-* Example #3: Add a remote by name & prefix.  
-    * `/git/develop/script/abs/bin/abs-remote-add --dry-run --remote-name bitbucket --directory common --remote-prefix "git@bitbucket.org:tiye/"` outputs `cd 'common/dot/.git' && git remote add bitbucket git@bitbucket.org:tiye/common-dot`
-
-* Example #4: Add a remote by name, prefix & suffix.  
-    * `/git/develop/script/abs/bin/abs-remote-add --dry-run --remote-name bitbucket --directory common --remote-prefix "git@bitbucket.org:tiye/" --remote-suffix ".git"` outputs `cd 'common/dot/.git' && git remote add bitbucket git@bitbucket.org:tiye/common-dot.git`
-
-* Example #5: Add a remote by name, prefix, suffix & strip 'common-'.  
-    * `/git/develop/script/abs/bin/abs-remote-add --dry-run --remote-name bitbucket --directory common --remote-prefix "git@bitbucket.org:tiye/" --remote-suffix ".git" --remote-strip "common-"` outputs `cd 'common/dot/.git' && git remote add bitbucket git@bitbucket.org:tiye/dot.git`
-
-### ABS Remote Remove
-
-* Example #1: Remove a remote by name.  
-    * `abs-remote-remove --remote-name bitbucket` outputs `cd 'common/dot/.git' && git remote remove bitbucket`
-
-* Example #2: Remove a remote by name & directory.  
-    * `abs-remote-remove --remote-name bitbucket --directory "/tmp"` outputs `cd '/tmp/common/dot/.git' && git remote remove bitbucket`
-
-### Note(s)
-
-* All command(s) support the `--dry-run` option. This allows you to inspect output before changes are applied.  
-*It is highly recommended to run all commands with the `--dry-option` to inspect output before commiting changes.`  
-
-
+Remove a remote repository.  
+``abs remote vendor bitbucket remove --repository REPOSITORY``  
+  
+  
+### Notes ###
+  
+Not intended for collaborative work; untested.  
+  
+Use the argument ``--dry-run`` to output commands before use.  
+  
+Vendor passwords are stored in plain text in ``$HOME/.config/abs``.  
+  
+  
