@@ -10,6 +10,16 @@ These instructions will get you a copy of the project up and running on your loc
 Clone the repository from github.  
 ``git clone https://github.com/eyit/abs.git``  
   
+  
+### Notes ###
+  
+Not intended for collaborative work; untested.  
+  
+Use the argument ``--dry-run`` to output commands before use.  
+  
+Vendor passwords are stored in plain text in ``$HOME/.config/abs``.  
+  
+  
 ## Usage ##
 
 ### Commands ###
@@ -75,14 +85,5 @@ List remote repositories.
 
 Remove a remote repository.  
 ``abs remote vendor bitbucket remove --repository REPOSITORY``  
-  
-  
-### Notes ###
-  
-Not intended for collaborative work; untested.  
-  
-Use the argument ``--dry-run`` to output commands before use.  
-  
-Vendor passwords are stored in plain text in ``$HOME/.config/abs``.  
   
   
