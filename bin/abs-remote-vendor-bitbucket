@@ -18,7 +18,7 @@ import sys
 
 # argument(s)
 PARSER = argparse.ArgumentParser()
-PARSER.add_argument('option', choices=['create','delete','init','list'])
+PARSER.add_argument('option', choices=['create','delete','init','list', 'remove'])
 PARSER.add_argument("--username", help="specify a username", action="store", dest="user_username")
 PARSER.add_argument("--password", help="specify a password", action="store", dest="user_password")
 PARSER.add_argument("--repository", help="specify a repository", action="store", dest="repository")
@@ -64,7 +64,8 @@ def feature_create():
     # create - repository -> bitbucket
     request = requests.post(
         URL_API + "/repositories/" + USER_USERNAME + "/" + REPOSITORY,
-        auth=(USER_USERNAME, USER_PASSWORD)
+        auth=(USER_USERNAME, USER_PASSWORD),
+        data = {'is_private': True}
     )
 
     # check - error
@@ -256,6 +257,8 @@ def main():
         feature_init()
     elif arguments.option == "list":
         feature_list()
+    elif arguments.option == "remove":
+        feature_delete()
     else:
         display("invalid option")
         sys.exit(2)
